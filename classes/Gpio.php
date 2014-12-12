@@ -108,15 +108,17 @@ class GPIO
 	{
 		$this->set_mode( $mode );
 		
+		// Check settings
 		if( !file_exists( dirname($this->_path) ))
 		{
 			throw new Kohana_Exception('GPIO pins are unavailable');
 		}
-		else if( !is_writable( $this->_path.reset($this->_pins).'/value' ) )
+		else if( !is_writable( $this->_path.reset($this->__pins_gpio).'/value' ) )
 		{
 			throw new Kohana_Exception('Unable to write to GPIO pins');			
 		}
 		
+		// Fill list with pin entries
 		foreach($this->__pins_gpio as $pin)
 		{
 			$this->__pins[$pin] = self::NONE;
@@ -193,6 +195,26 @@ class GPIO
 			throw new Kohana_Exception('Re-initialising a pin that is in use');
 		}
 	}
+	/**
+	 * 
+	 * @param type $pin
+	 * @param type $direction
+	 * @throws Kohana_Exception
+	 */
+	public function pin_unset($pin, $direction = self::OUTPUT)
+	{
+		if($this->__pins[$pin] != self::NONE)
+		{
+			/* We dont do the "export" action because it would require us
+			 * to have root. As such, we just maintain a list.
+			*/
+			$this->__pins[$pin] = self::NONE;
+		}
+		else 
+		{
+			throw new Kohana_Exception('De-initialising a pin that is not setup');
+		}
+	}
 	
 	/**
 	 * Reads the value of pin.  
@@ -233,7 +255,7 @@ class GPIO
 		{
 			try
 			{
-				$value = file_put_contents($this->_path.$pin.'/value', ($value == 1));
+				$value = file_put_contents($this->_path.$pin.'/value', (int)($value == 1));
 			} 
 			catch(Exception $e)
 			{
