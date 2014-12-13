@@ -19,7 +19,7 @@ class GPIO
 	 * 
 	 * @var integer
 	 */
-	protected $__mode;
+	protected $_mode;
 	
 	/**
 	 * Path to the GPIO pin space
@@ -38,7 +38,7 @@ class GPIO
 	 * 
 	 * See https://projects.drogon.net/raspberry-pi/wiringpi/pins/
 	 */
-	protected $__relations = array(
+	protected $_relations = array(
 		 1 => null,
 		 2 => null,
 		 3 => 2,	// Changes for R1 to R2 boards
@@ -73,33 +73,33 @@ class GPIO
 	 * 
 	 * Can be used as a check to prevent screwing up
 	 */
-	protected $__pins_gpio = array(2,3,4,7,8,9,10,11,14,15,18,21,22,24,25);
+	protected $_pins_gpio = array(2,3,4,7,8,9,10,11,14,15,18,21,22,24,25);
 	/**
 	 * Could be used as input or output.  Turns on/off every half second.
 	 * @var array 
 	 */
-	protected $__pins_timer = array(23);
+	protected $_pins_timer = array(23);
 	/**
 	 * 5v Pins.  Cant be used.
 	 * @var array
 	 */
-	protected $__pins_5v = array( 1, 5);
+	protected $_pins_5v = array( 1, 5);
 	/**
 	 * 3v Pins.  Cant be used.
 	 * @var array
 	 */
-	protected $__pins_3v = array();
+	protected $_pins_3v = array();
 	/**
 	 * Ground Pins.  Cant be used.
 	 * @var array
 	 */
-	protected $__pins_gnd = array();
+	protected $_pins_gnd = array();
 	
 	/**
 	 * List of active pins and what they are used for. 
 	 * @var array
 	 */
-	protected $__pins = array();
+	protected $_pins = array();
 	
 	/**
 	 * Not a static class.
@@ -113,15 +113,15 @@ class GPIO
 		{
 			throw new Kohana_Exception('GPIO pins are unavailable');
 		}
-		else if( !is_writable( $this->_path.reset($this->__pins_gpio).'/value' ) )
+		else if( !is_writable( $this->_path.reset($this->_pins_gpio).'/value' ) )
 		{
 			throw new Kohana_Exception('Unable to write to GPIO pins');			
 		}
 		
 		// Fill list with pin entries
-		foreach($this->__pins_gpio as $pin)
+		foreach($this->_pins_gpio as $pin)
 		{
-			$this->__pins[$pin] = self::NONE;
+			$this->_pins[$pin] = self::NONE;
 		}
 	}
 	
@@ -139,11 +139,11 @@ class GPIO
 	 */
 	public function to_pin_no($id)
 	{
-		if($this->__mode == self::BOARD)
+		if($this->_mode == self::BOARD)
 		{
-			if(isset($this->__relations[$id]))
+			if(isset($this->_relations[$id]))
 			{
-				return $this->__relations[$id];		
+				return $this->_relations[$id];		
 			}
 		}
 		return $id;
@@ -156,13 +156,13 @@ class GPIO
 	 */
 	public function set_mode($mode = self::BCM)
 	{
-		if($this->__mode == self::BOARD)
+		if($this->_mode == self::BOARD)
 		{
-			$this->__mode = self::BOARD;
+			$this->_mode = self::BOARD;
 		}
 		else
 		{
-			$this->__mode = self::BCM;
+			$this->_mode = self::BCM;
 		}
 	}
 	
@@ -174,12 +174,12 @@ class GPIO
 	 */
 	public function pin_setup($pin, $direction = self::OUTPUT)
 	{
-		if($this->__pins[$pin] == self::NONE)
+		if($this->_pins[$pin] == self::NONE)
 		{
 			/* We dont do the "export" action because it would require us
 			 * to have root. As such, we just maintain a list.
 			*/
-			$this->__pins[$pin] = $direction;
+			$this->_pins[$pin] = $direction;
 			$value = ($direction == self::OUTPUT)?'out':'in';
 			try
 			{
@@ -203,12 +203,12 @@ class GPIO
 	 */
 	public function pin_unset($pin, $direction = self::OUTPUT)
 	{
-		if($this->__pins[$pin] != self::NONE)
+		if($this->_pins[$pin] != self::NONE)
 		{
 			/* We dont do the "export" action because it would require us
 			 * to have root. As such, we just maintain a list.
 			*/
-			$this->__pins[$pin] = self::NONE;
+			$this->_pins[$pin] = self::NONE;
 		}
 		else 
 		{
@@ -224,7 +224,7 @@ class GPIO
 	 */
 	public function pin_input($pin)
 	{
-		if( isset($this->__pins[$pin]) && $this->__pins[$pin] == self::INPUT)
+		if( isset($this->_pins[$pin]) && $this->_pins[$pin] == self::INPUT)
 		{
 			try
 			{
@@ -234,7 +234,7 @@ class GPIO
 			{
 				throw new Kohana_Exception('Unable to read from GPIO pins');	
 			}
-			return ($value == 1);
+			return (int)($value == 1);
 		}
 		else
 		{
@@ -251,7 +251,7 @@ class GPIO
 	 */
 	public function pin_output($pin, $value)
 	{
-		if( isset($this->__pins[$pin]) && $this->__pins[$pin] == self::OUTPUT)
+		if( isset($this->_pins[$pin]) && $this->_pins[$pin] == self::OUTPUT)
 		{
 			try
 			{
