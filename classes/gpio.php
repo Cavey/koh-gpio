@@ -1,5 +1,8 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
+/**
+ * Class for editing the GPIO pins on a Raspberry Pi
+ */
 class GPIO 
 {
 	const BOARD = 0;
@@ -129,30 +132,26 @@ class GPIO
 	 * Accepts a pin number in Board (human readable) mode.  This is 2 to the 
 	 * top left, 1 to bottom left, 26 top right, and 25 bottom right.
 	 * 
-	 * If we state we're using BOARD, then we need to change it.
-	 * 
 	 * This returns the ID you need to change in BCM (as the computer sees 
-	 * them) mode. 
+	 * them and how we work) mode. 
 	 * 
 	 * @param integer $id
-	 * @return integer
+	 * @return bool|integer
 	 */
-	public function to_pin_no($id)
+	public function board_to_pcm($id)
 	{
-		if($this->_mode == self::BOARD)
+		if(isset($this->_relations[$id]))
 		{
-			if(isset($this->_relations[$id]))
-			{
-				return $this->_relations[$id];		
-			}
+			return $this->_relations[$id];		
 		}
-		return $id;
+		return false;
 	}
 	
 	/**
 	 * Set the mode we're using.  The PI uses BCM, so we default to that.
 	 * 
 	 * @param type $mode
+	 * @return object gpio
 	 */
 	public function set_mode($mode = self::BCM)
 	{
@@ -164,6 +163,7 @@ class GPIO
 		{
 			$this->_mode = self::BCM;
 		}
+		return $this;
 	}
 	
 	/**
@@ -171,6 +171,7 @@ class GPIO
 	 * @param type $pin
 	 * @param type $direction
 	 * @throws Kohana_Exception
+	 * @return object gpio
 	 */
 	public function pin_setup($pin, $direction = self::OUTPUT)
 	{
@@ -194,12 +195,14 @@ class GPIO
 		{
 			throw new Kohana_Exception('Re-initialising a pin that is in use');
 		}
+		return $this;
 	}
 	/**
 	 * 
 	 * @param type $pin
 	 * @param type $direction
 	 * @throws Kohana_Exception
+	 * @return object gpio
 	 */
 	public function pin_unset($pin, $direction = self::OUTPUT)
 	{
@@ -214,6 +217,7 @@ class GPIO
 		{
 			throw new Kohana_Exception('De-initialising a pin that is not setup');
 		}
+		return $this;
 	}
 	
 	/**
@@ -248,6 +252,7 @@ class GPIO
 	 * 
 	 * @param integer $pin
 	 * @param bool $value
+	 * @return object gpio
 	 */
 	public function pin_output($pin, $value)
 	{
@@ -266,7 +271,7 @@ class GPIO
 		{
 			throw new Kohana_Exception('Attempt to write to a non-output pin');
 		}
-		return $value;
+		return $this;
 	}
 	
 	/**
@@ -276,9 +281,10 @@ class GPIO
 	 * @param integer $id
 	 * @param integer $status
 	 * @param string $req
+	 * @return bool Returns true if the event was setup correctly.
 	 */
 	public static function add_event_detect( $id, $status, $req )
 	{
-		
+		return false;
 	}
 }
